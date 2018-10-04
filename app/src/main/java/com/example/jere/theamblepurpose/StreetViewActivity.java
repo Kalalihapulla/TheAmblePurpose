@@ -20,7 +20,7 @@ import com.google.android.gms.maps.model.StreetViewSource;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity
+public class StreetViewActivity extends AppCompatActivity
         implements OnStreetViewPanoramaReadyCallback {
 
     private StreetViewPanorama mStreetViewPanorama;
@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.streetview_activity);
 
         SupportStreetViewPanoramaFragment streetViewFragment =
                 (SupportStreetViewPanoramaFragment) getSupportFragmentManager()
