@@ -1,12 +1,17 @@
 package com.example.jere.theamblepurpose;
 
 
+import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
@@ -18,13 +23,17 @@ import com.google.android.gms.maps.model.StreetViewPanoramaLocation;
 import com.google.android.gms.maps.model.StreetViewPanoramaOrientation;
 import com.google.android.gms.maps.model.StreetViewSource;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class StreetViewActivity extends AppCompatActivity
         implements OnStreetViewPanoramaReadyCallback {
 
     private StreetViewPanorama mStreetViewPanorama;
     private boolean secondLocation = false;
+    private ArrayList<Double> coordinates;
 
     public ArrayList generateCoordinates() {
         //Double randomLat = -90 + Math.random() * (90 - (-90));
@@ -35,6 +44,7 @@ public class StreetViewActivity extends AppCompatActivity
         ArrayList<Double> coordinates = new ArrayList<>();
         coordinates.add(Math.round(randomLat * 1000000.0) / 1000000.0);
         coordinates.add(Math.round(randomLon * 1000000.0) / 1000000.0);
+        this.coordinates = coordinates;
         //coordinates.add(60.221367);
         //coordinates.add(24.8068473);
 
@@ -54,11 +64,13 @@ public class StreetViewActivity extends AppCompatActivity
                         .findFragmentById(R.id.googleMapStreetView);
         streetViewFragment.getStreetViewPanoramaAsync(this);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton newPictureButton = findViewById(R.id.newPictureButton);
+        newPictureButton.setOnClickListener(new View.OnClickListener() {
             int counter=0;
             @Override
             public void onClick(View view) {
+                TextView roadInfo = (TextView) findViewById(R.id.roadInfo);
+                roadInfo.setText(null);
                 secondLocation = !secondLocation;
                 onStreetViewPanoramaReady(mStreetViewPanorama);
                 counter++;
@@ -66,10 +78,18 @@ public class StreetViewActivity extends AppCompatActivity
             }
         });
 
+        FloatingActionButton revealLocationButton = findViewById(R.id.revealLocationButton);
+        revealLocationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getAddress(getApplicationContext(), coordinates.get(0), coordinates.get(1));
+            }
+        });
+
     }
 
     @Override
-    public void onStreetViewPanoramaReady(StreetViewPanorama streetViewPanorama) {
+    public void onStreetViewPanoramaReady(final StreetViewPanorama streetViewPanorama) {
         mStreetViewPanorama = streetViewPanorama;
 
         ArrayList<Double> coordinates = generateCoordinates();
@@ -78,6 +98,7 @@ public class StreetViewActivity extends AppCompatActivity
         } else {
             streetViewPanorama.setPosition(new LatLng(coordinates.get(0), coordinates.get(1)));
         }
+
         streetViewPanorama.setStreetNamesEnabled(false);
         streetViewPanorama.setPanningGesturesEnabled(true);
         streetViewPanorama.setZoomGesturesEnabled(true);
@@ -98,9 +119,40 @@ public class StreetViewActivity extends AppCompatActivity
                 public void onStreetViewPanoramaChange(
                         StreetViewPanoramaLocation streetViewPanoramaLocation) {
 
-
-//                    Toast.makeText(getApplicationContext(), "Lat: " + streetViewPanoramaLocation.position.latitude + " Lng: " + streetViewPanoramaLocation.position.longitude, Toast.LENGTH_SHORT).show();
-
                 }
             };
+
+    public void getAddress(Context context, double LATITUDE, double LONGITUDE) {
+
+//Set Address
+        try {
+            Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+            List<Address> addresses = geocoder.getFromLocation(LATITUDE, LONGITUDE, 1);
+            if (addresses != null && addresses.size() > 0) {
+
+                String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+                String city = addresses.get(0).getLocality();
+                String state = addresses.get(0).getAdminArea();
+                String country = addresses.get(0).getCountryName();
+                String postalCode = addresses.get(0).getPostalCode();
+                String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
+
+
+                TextView roadInfo = (TextView) findViewById(R.id.roadInfo);
+
+                roadInfo.setText(address);
+
+                Log.d("lul", "getAddress:  address" + address);
+                Log.d("lul","getAddress:  city" + city);
+                Log.d("lul","getAddress:  state" + state);
+                Log.d("lul","getAddress:  postalCode" + postalCode);
+                Log.d("lul","getAddress:  knownName" + knownName);
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return;
+    }
+
 }
