@@ -13,11 +13,19 @@ public class StartScreenActivity extends AppCompatActivity {
         setContentView(R.layout.startscreen_activity);
 
         Button startActivity = (Button)findViewById(R.id.startactivity_button);
+        Button mapTestButton = (Button)findViewById(R.id.maptest_button);
 
         startActivity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(StartScreenActivity.this, StreetViewActivity.class));
+            }
+        });
+
+        mapTestButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(StartScreenActivity.this, MapActivity.class));
             }
         });
     }

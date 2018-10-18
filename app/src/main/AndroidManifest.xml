@@ -19,9 +19,15 @@
         </activity>
 
         <activity android:name=".StreetViewActivity">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+        </intent-filter>
+        </activity>
+
+        <activity android:name=".MapActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
             </intent-filter>
         </activity>
 
@@ -30,7 +36,6 @@
             android:value="AIzaSyCEdQ_kmvJBeCqIohIbjGRghEdK_pA3BAc" />
     </application>
 
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
 </manifest>
