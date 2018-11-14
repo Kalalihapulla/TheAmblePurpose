@@ -31,6 +31,12 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".RouteActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCEdQ_kmvJBeCqIohIbjGRghEdK_pA3BAc" />

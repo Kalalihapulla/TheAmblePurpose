@@ -67,6 +67,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.maplayout_activity);
 
+        Log.d("test",Route.getString());
+
         if (requestSinglePermission()) {
             // Obtain the SupportMapFragment and get notified when the map is ready to be used.
             //it was pre written
