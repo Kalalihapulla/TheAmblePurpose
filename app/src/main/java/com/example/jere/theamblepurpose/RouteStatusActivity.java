@@ -1,17 +1,5 @@
 package com.example.jere.theamblepurpose;
 
-import android.support.v4.app.FragmentActivity;
-import android.os.Bundle;
-import android.util.Log;
-import android.widget.TextView;
-
-import com.example.jere.theamblepurpose.R;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.Manifest;
 import android.content.Context;
@@ -20,20 +8,27 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -42,11 +37,11 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
-public class MapActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
+import org.json.JSONException;
 
-    private GoogleMap mMap;
 
-    private static final String TAG = "MainActivity";
+public class RouteStatusActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
+
     private TextView mLatitudeTextView;
     private TextView mLongitudeTextView;
     private GoogleApiClient mGoogleApiClient;
@@ -61,17 +56,14 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
     private LatLng latLng;
     private boolean isPermission;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.maplayout_activity);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+        setContentView(R.layout.routestatus_layout);
 
         if (requestSinglePermission()) {
-
-            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.map);
-            mapFragment.getMapAsync(this);
 
             mLatitudeTextView = (TextView) findViewById((R.id.latitude_textview));
             mLongitudeTextView = (TextView) findViewById((R.id.longitude_textview));
@@ -87,30 +79,22 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             checkLocation(); //check whether location service is enable or not in your  phone
         }
 
+        Button readyButton = (Button)findViewById(R.id.readyButton);
+
+        readyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    compareLocation();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                //startActivity(new Intent(RouteStatusActivity.this, RouteActivity.class));
+            }
+        });
+
     }
 
-
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
-    //it was pre written
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-
-        if (latLng != null) {
-            mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in Current Location"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        }
-    }
-
-    @Override
     public void onConnected(@Nullable Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -125,15 +109,15 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
         startLocationUpdates();
 
-        mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        mLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
         if (mLocation == null) {
             startLocationUpdates();
         }
         if (mLocation != null) {
 
-            // mLatitudeTextView.setText(String.valueOf(mLocation.getLatitude()));
-            //mLongitudeTextView.setText(String.valueOf(mLocation.getLongitude()));
+//            mLatitudeTextView.setText(String.valueOf(mLocation.getLatitude()));
+       //     mLongitudeTextView.setText(String.valueOf(mLocation.getLongitude()));
         } else {
             Toast.makeText(this, "Location not Detected", Toast.LENGTH_SHORT).show();
         }
@@ -141,13 +125,13 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.i(TAG, "Connection Suspended");
+        Log.d("test", "Connection Suspended");
         mGoogleApiClient.connect();
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.i(TAG, "Connection failed. Error: " + connectionResult.getErrorCode());
+        Log.d("test", "Connection failed. Error: " + connectionResult.getErrorCode());
     }
 
     @Override
@@ -163,9 +147,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         //it was pre written
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
     }
 
     protected void startLocationUpdates() {
@@ -186,8 +167,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
             return;
         }
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
-                mLocationRequest, this);
-        Log.d("reque", "--->>>>");
+                mLocationRequest, (LocationListener) this);
     }
 
     @Override
@@ -248,7 +228,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                     @Override
                     public void onPermissionGranted(PermissionGrantedResponse response) {
                         //Single Permission is granted
-                        Toast.makeText(MapActivity.this, "Single permission is granted!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RouteStatusActivity.this, "Single permission is granted!", Toast.LENGTH_SHORT).show();
                         isPermission = true;
                     }
 
@@ -269,4 +249,50 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
         return isPermission;
 
     }
+
+    public LatLng getCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            Location currentLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+           // Log.d("test", currentLocation.toString());
+            LatLng currentLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+            return currentLatLng;
+        }
+        else {
+            Log.d("info", "Location error");
+            return null;
+        }
+    }
+
+    public void compareLocation() throws JSONException {
+        LatLng currentLatLng = getCurrentLocation();
+        double currentLat = currentLatLng.latitude;
+        double currentLon = currentLatLng.longitude;
+        double comparedLat = Route.getCurrentLatitude();
+        double comparedLon = Route.getCurrentLongitude();
+        double distanceBetweenPoints = compareDistance(currentLat, comparedLat, currentLon, comparedLon, 0.0, 0.0);
+        Log.d("test", String.valueOf(distanceBetweenPoints));
+
+    }
+
+    public double compareDistance(double lat1, double lat2, double lon1,
+                                  double lon2, double el1, double el2) {
+
+        final int R = 6371; // Radius of the earth
+
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = R * c * 1000; // convert to meters
+
+        double height = el1 - el2;
+
+        distance = Math.pow(distance, 2) + Math.pow(height, 2);
+
+        return Math.sqrt(distance);
+    }
+
+
 }

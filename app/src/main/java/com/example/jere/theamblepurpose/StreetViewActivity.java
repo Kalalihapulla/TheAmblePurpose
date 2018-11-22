@@ -4,6 +4,7 @@ package com.example.jere.theamblepurpose;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.CountDownTimer;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -154,5 +155,6 @@ public class StreetViewActivity extends AppCompatActivity
         }
         return;
     }
+
 
 }
