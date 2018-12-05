@@ -1,11 +1,9 @@
 package com.example.jere.theamblepurpose;
 
-import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -17,6 +15,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -29,7 +28,7 @@ import java.util.ArrayList;
 
 public class RouteLoader extends AppCompatActivity {
 
-    private JSONObject routeArray;
+    private JSONArray routeArray;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,12 +38,6 @@ public class RouteLoader extends AppCompatActivity {
 
         loadRoutes();
 
-//        try {
-//            JSONArray routeArrayList = this.routeArray.getJSONArray("");
-//            Log.d("test", routeArrayList.toString());
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
 
         final ListView listview = (ListView) findViewById(R.id.routeList);
 
@@ -55,9 +48,17 @@ public class RouteLoader extends AppCompatActivity {
                 "Android", "iPhone", "WindowsMobile" };
 
         final ArrayList<String> list = new ArrayList<String>();
-        for (int i = 0; i < values.length; ++i) {
-            list.add(values[i]);
-        }
+
+          for (int i = 0; i < values.length; ++i) {
+              list.add(values[i]);
+          }
+
+
+       // final ArrayList<String> routeNamesList = new ArrayList<String>();
+
+     //   for (int i = 0; i < routeArray.length(); ++i) {
+        //    Log.d("test",String.valueOf(i));
+       // }
 
         final RouteArrayAdapter adapter = new RouteArrayAdapter(this,
                 android.R.layout.simple_list_item_1, list);
@@ -142,29 +143,34 @@ public class RouteLoader extends AppCompatActivity {
 
         Log.d("test", "STARTED ROUTING");
 
-        RequestQueue queue = Volley.newRequestQueue(this);
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         String url = "http://206.189.106.84:2121/routes";
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
+                Request.Method.GET,
+                url,
+                null,
+                new Response.Listener<JSONArray>() {
                     @Override
-                    public void onResponse(JSONObject response) {
-                        routeArray = response;
+                    public void onResponse(JSONArray response) {
+
+                        Log.d("test", "Routes get" );
+                            routeArray = response;
+                            Log.d("test", routeArray.toString());
 
                     }
-                }, new Response.ErrorListener() {
-
+                },
+                new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("test", "NO RESPONSE!");
+                        // Do something when error occurred
+
                     }
-                });
-        queue.add(jsonObjectRequest);
+                }
+        );
+
+        requestQueue.add(jsonArrayRequest);
 
     }
-
-
-
 }
