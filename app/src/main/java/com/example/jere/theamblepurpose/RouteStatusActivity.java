@@ -8,17 +8,24 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -81,18 +88,43 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
 
         Button readyButton = (Button)findViewById(R.id.readyButton);
 
+        Button hintButton = (Button) findViewById(R.id.showHintButton);
+
         readyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-                    compareLocation();
+                    validateDistance(compareLocation());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                //startActivity(new Intent(RouteStatusActivity.this, RouteActivity.class));
             }
         });
 
+        hintButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(RouteStatusActivity.this);
+
+                try {
+                    builder1.setMessage(Route.getCurrentHint());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                builder1.setCancelable(true);
+
+                    builder1.setPositiveButton(
+                            "Dismiss",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+                AlertDialog alert1 = builder1.create();
+                alert1.show();
+                }
+        });
     }
 
     public void onConnected(@Nullable Bundle bundle) {
@@ -141,7 +173,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
                 Double.toString(location.getLongitude());
         mLatitudeTextView.setText(String.valueOf(location.getLatitude()));
         mLongitudeTextView.setText(String.valueOf(location.getLongitude()));
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+       // Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
         // You can now create a LatLng Object for use with maps
         latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
@@ -228,7 +260,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
                     @Override
                     public void onPermissionGranted(PermissionGrantedResponse response) {
                         //Single Permission is granted
-                        Toast.makeText(RouteStatusActivity.this, "Single permission is granted!", Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(RouteStatusActivity.this, "Single permission is granted!", Toast.LENGTH_SHORT).show();
                         isPermission = true;
                     }
 
@@ -263,15 +295,23 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         }
     }
 
-    public void compareLocation() throws JSONException {
+    public double compareLocation() throws JSONException {
         LatLng currentLatLng = getCurrentLocation();
         double currentLat = currentLatLng.latitude;
         double currentLon = currentLatLng.longitude;
         double comparedLat = Route.getCurrentLatitude();
         double comparedLon = Route.getCurrentLongitude();
+        Log.d("test", String.valueOf(comparedLat));
+        Log.d("test", String.valueOf(comparedLon));
         double distanceBetweenPoints = compareDistance(currentLat, comparedLat, currentLon, comparedLon, 0.0, 0.0);
         Log.d("test", String.valueOf(distanceBetweenPoints));
+        return distanceBetweenPoints;
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Disble back button;
     }
 
     public double compareDistance(double lat1, double lat2, double lon1,
@@ -294,5 +334,52 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         return Math.sqrt(distance);
     }
 
+    public void validateDistance(double distance) {
+
+        if (distance <= 20) {
+
+            AlertDialog.Builder builder2 = new AlertDialog.Builder(this);
+            if (Route.checkForLastPoint()) {
+                builder2.setMessage("Congratulations! You have completed the route! Return to route list.");
+                builder2.setPositiveButton(
+                        "Routes",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                startActivity(new Intent(RouteStatusActivity.this, RouteLoader.class));
+                                dialog.cancel();
+                            }
+                        });
+            }
+
+            else {
+                builder2.setMessage("Congratulations, location reached! Are you ready for the next location?");
+                builder2.setCancelable(true);
+
+                builder2.setPositiveButton(
+                        "I'm ready!",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Route.incrementCurrentPoint();
+                                startActivity(new Intent(RouteStatusActivity.this, RouteActivity.class));
+                                dialog.cancel();
+                            }
+                        });
+            }
+
+            AlertDialog alert2 = builder2.create();
+            alert2.show();
+        }
+
+        else if (distance <= 80) {
+            Toast.makeText(getApplicationContext(), "You are really close to the destination!", Toast.LENGTH_SHORT).show();
+        }
+
+        else if (distance <= 160) {
+            Toast.makeText(getApplicationContext(), "You are getting closer to the destination!", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Toast.makeText(getApplicationContext(), "You are far away from the destination!", Toast.LENGTH_SHORT).show();
+        }
+    }
 
 }

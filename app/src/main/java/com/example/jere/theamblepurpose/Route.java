@@ -45,8 +45,21 @@ public class Route {
         return Double.parseDouble(routePoints.get(currentPoint).get("longitude").toString());
     }
 
+    public static String getCurrentHint() throws JSONException {
+       return routePoints.get(currentPoint).get("hint").toString();
+    }
+
     public static void incrementCurrentPoint() {
        currentPoint++;
     }
 
+    public static boolean checkForLastPoint() {
+
+       if (currentPoint == routePoints.size()-1) {
+           return true;
+       }
+       else {
+           return false;
+       }
+    }
 }

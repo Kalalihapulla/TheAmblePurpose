@@ -85,6 +85,7 @@ public class RouteActivity extends AppCompatActivity
 
         streetViewPanorama.setOnStreetViewPanoramaChangeListener(panoramaChangeListener);
 
+
     }
 
     private StreetViewPanorama.OnStreetViewPanoramaChangeListener panoramaChangeListener =
@@ -95,6 +96,10 @@ public class RouteActivity extends AppCompatActivity
                 }
             };
 
+    @Override
+    public void onBackPressed() {
+        // Disble back button;
+    }
 
     public void initiateRoutePoint() {
 
@@ -106,7 +111,6 @@ public class RouteActivity extends AppCompatActivity
             }
             public void onFinish() {
                 countDownTimerText.setText("Done !");
-                Route.incrementCurrentPoint();
                 startActivity(new Intent(RouteActivity.this, RouteStatusActivity.class));
             }
         };
