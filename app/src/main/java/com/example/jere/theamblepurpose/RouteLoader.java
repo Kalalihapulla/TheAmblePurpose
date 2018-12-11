@@ -51,7 +51,16 @@ public class RouteLoader extends AppCompatActivity {
 
         loadRoutes();
 
+        ImageButton backButton = (ImageButton) findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(RouteLoader.this, RouteSettingsActivity.class));
+            }
+        });
+
     }
+
 
     public void loadRouteInfo(int routeID) {
 
@@ -150,9 +159,9 @@ public class RouteLoader extends AppCompatActivity {
 
                                 try {
                                     routeDesc.setText(routeArrayList.get(i).getString("description"));
-                                    routeDur.setText("Duration: " + routeArrayList.get(i).getString("duration_time"));
-                                    routeLen.setText("Length " + routeArrayList.get(i).getString("duration_distance"));
-                                    routeRating.setText("Rating: " + routeArrayList.get(i).getString("avg_rating"));
+                                    routeDur.setText("Duration: " + routeArrayList.get(i).getString("duration_time") + " Min");
+                                    routeLen.setText("Length " + routeArrayList.get(i).getString("duration_distance") + " Km");
+                                    routeRating.setText("Rating: " + routeArrayList.get(i).getString("avg_rating") + " Stars");
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }

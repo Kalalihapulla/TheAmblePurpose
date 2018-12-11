@@ -4,24 +4,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".StreetViewActivity"
+    tools:context=".RouteActivity"
     tools:layout_editor_absoluteY="81dp">
 
     <fragment
         android:id="@+id/googleMapStreetViewFragment"
         android:name="com.google.android.gms.maps.SupportStreetViewPanoramaFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:layout_editor_absoluteY="246dp" />
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="8dp" />
 
     <TextView
         android:id="@+id/countDownTimer"
         android:layout_width="187dp"
-        android:layout_height="135dp"
-        android:layout_marginStart="96dp"
-        android:layout_marginTop="60dp"
-        android:text="TEXXXTTT"
-        android:textColor="@android:color/holo_red_light"
+        android:layout_height="69dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Timer"
         android:textSize="30sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
@@ -14,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,6 +27,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -63,6 +67,8 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
     private LatLng latLng;
     private boolean isPermission;
 
+    private ImageButton readyButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,9 +77,6 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         setContentView(R.layout.routestatus_layout);
 
         if (requestSinglePermission()) {
-
-            mLatitudeTextView = (TextView) findViewById((R.id.latitude_textview));
-            mLongitudeTextView = (TextView) findViewById((R.id.longitude_textview));
 
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -86,9 +89,9 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
             checkLocation(); //check whether location service is enable or not in your  phone
         }
 
-        Button readyButton = (Button)findViewById(R.id.readyButton);
+        readyButton = (ImageButton) findViewById(R.id.readyButton);
 
-        Button hintButton = (Button) findViewById(R.id.showHintButton);
+        ImageButton hintButton = (ImageButton) findViewById(R.id.showHintButton);
 
         readyButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,16 +117,16 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
                 }
                 builder1.setCancelable(true);
 
-                    builder1.setPositiveButton(
-                            "Dismiss",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.cancel();
-                                }
-                            });
+                builder1.setPositiveButton(
+                        "Dismiss",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
                 AlertDialog alert1 = builder1.create();
                 alert1.show();
-                }
+            }
         });
     }
 
@@ -149,7 +152,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         if (mLocation != null) {
 
 //            mLatitudeTextView.setText(String.valueOf(mLocation.getLatitude()));
-       //     mLongitudeTextView.setText(String.valueOf(mLocation.getLongitude()));
+            //     mLongitudeTextView.setText(String.valueOf(mLocation.getLongitude()));
         } else {
             Toast.makeText(this, "Location not Detected", Toast.LENGTH_SHORT).show();
         }
@@ -171,9 +174,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         String msg = "Updated Location: " +
                 Double.toString(location.getLatitude()) + "," +
                 Double.toString(location.getLongitude());
-        mLatitudeTextView.setText(String.valueOf(location.getLatitude()));
-        mLongitudeTextView.setText(String.valueOf(location.getLongitude()));
-       // Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        // Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
         // You can now create a LatLng Object for use with maps
         latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
@@ -260,7 +261,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
                     @Override
                     public void onPermissionGranted(PermissionGrantedResponse response) {
                         //Single Permission is granted
-                       // Toast.makeText(RouteStatusActivity.this, "Single permission is granted!", Toast.LENGTH_SHORT).show();
+                        // Toast.makeText(RouteStatusActivity.this, "Single permission is granted!", Toast.LENGTH_SHORT).show();
                         isPermission = true;
                     }
 
@@ -285,11 +286,10 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
     public LatLng getCurrentLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Location currentLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-           // Log.d("test", currentLocation.toString());
+            // Log.d("test", currentLocation.toString());
             LatLng currentLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
             return currentLatLng;
-        }
-        else {
+        } else {
             Log.d("info", "Location error");
             return null;
         }
@@ -349,9 +349,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
                                 dialog.cancel();
                             }
                         });
-            }
-
-            else {
+            } else {
                 builder2.setMessage("Congratulations, location reached! Are you ready for the next location?");
                 builder2.setCancelable(true);
 
@@ -368,18 +366,15 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
 
             AlertDialog alert2 = builder2.create();
             alert2.show();
-        }
 
-        else if (distance <= 80) {
+
+        } else if (distance <= 80) {
             Toast.makeText(getApplicationContext(), "You are really close to the destination!", Toast.LENGTH_SHORT).show();
-        }
-
-        else if (distance <= 160) {
+        } else if (distance <= 160) {
             Toast.makeText(getApplicationContext(), "You are getting closer to the destination!", Toast.LENGTH_SHORT).show();
-        }
-        else {
+        } else {
             Toast.makeText(getApplicationContext(), "You are far away from the destination!", Toast.LENGTH_SHORT).show();
         }
     }
-
 }
+

@@ -103,11 +103,11 @@ public class RouteActivity extends AppCompatActivity
 
     public void initiateRoutePoint() {
 
-        final CountDownTimer countDownTimer = new CountDownTimer(15 * 1000, 1000) {
+        final CountDownTimer countDownTimer = new CountDownTimer(16 * 1000, 1000) {
 
             TextView countDownTimerText = (TextView) findViewById(R.id.countDownTimer);
             public void onTick(long millisUntilFinished) {
-                countDownTimerText.setText("Seconds remaining: " + millisUntilFinished / 1000);
+                countDownTimerText.setText("Time left: " + millisUntilFinished / 1000);
             }
             public void onFinish() {
                 countDownTimerText.setText("Done !");
