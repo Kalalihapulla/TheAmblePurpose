@@ -22,6 +22,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.view.menu.MenuBuilder;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -87,6 +88,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
     private Context context = this;
     private RatingBar routeRating;
     private TextView travelledText;
+    private ImageButton menuButton;
 
     private double lastLat;
     private double lastLon;
@@ -107,6 +109,34 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         TextView routeNumber = (TextView) findViewById(R.id.routeNumber);
         routeNumber.setText("Point number: " + String.valueOf(Route.getCurrentPoint() + 1) + "/" + String.valueOf(Route.getLastPointNumber()));
         travelledText = (TextView) findViewById(R.id.travelledText);
+
+        ImageButton menuButton = (ImageButton) findViewById(R.id.menuButton);
+
+        menuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder menuBuilder = new AlertDialog.Builder(RouteStatusActivity.this);
+
+                menuBuilder.setCancelable(true);
+
+                menuBuilder.setTitle("Return to start screen?")
+                        .setMessage("Are you sure?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+
+                                startActivity(new Intent(RouteStatusActivity.this, StartScreenActivity.class));
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                            }
+                        });
+                menuBuilder.show();
+
+            }
+        });
 
 
         routeTimer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {

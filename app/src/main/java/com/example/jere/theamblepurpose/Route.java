@@ -10,8 +10,6 @@ import java.util.ArrayList;
 
 public class Route {
     private static JSONObject routeData;
-    private static Double currentLatitude;
-    private static Double currentLongitude;
     private static int currentPoint;
     private static int lastPointNumber;
     private static ArrayList<JSONObject> routePoints;
@@ -19,6 +17,7 @@ public class Route {
     private static double travelledDistance;
     private static double lastLat;
     private static double lastLon;
+    private static int routeID;
 
    public Route(JSONObject routeData) throws JSONException {
        this.routeData = routeData;
@@ -28,6 +27,7 @@ public class Route {
        this.currentTimer = 0L;
        this.travelledDistance = 0.0;
        lastPointNumber = routeData.getJSONArray("points").length();
+       routeID = routeData.getInt("id");
 
        for (int i=0; i < routeData.getJSONArray("points").length(); i++)
        {
@@ -107,5 +107,8 @@ public class Route {
 
     public static int getLastPointNumber() {
         return lastPointNumber;
+    }
+    public static int getRouteID() {
+        return routeID;
     }
 }
