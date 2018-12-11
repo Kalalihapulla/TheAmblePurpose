@@ -95,6 +95,9 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         routeTimer = (Chronometer) findViewById(R.id.routeTimer);
         routeTimer.setBase(Route.getCurrentTimer());
 
+        TextView routeNumber = (TextView)findViewById(R.id.routeNumber);
+        routeNumber.setText("Point number: " + String.valueOf(Route.getCurrentPoint()+1) + "/" + String.valueOf(Route.getLastPointNumber()));
+
         routeTimer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
             @Override
             public void onChronometerTick(Chronometer chronometerChanged) {
@@ -125,6 +128,8 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
             @Override
             public void onClick(View v) {
                 try {
+                    Route.setLastLat(currentLat);
+                    Route.setLastLon(currentLon);
                     validateDistance(compareLocation());
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -162,13 +167,6 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
 
     public void onConnected(@Nullable Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
 
@@ -205,18 +203,27 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         String msg = "Updated Location: " +
                 Double.toString(location.getLatitude()) + "," +
                 Double.toString(location.getLongitude());
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
 
         currentLat = location.getLatitude();
         currentLon = location.getLongitude();
-        if ((lastLat == 0.0) && (lastLon == 0.0)) {
+
+        Log.d("test", String.valueOf(Route.getCurrentPoint()));
+
+        if ((lastLat == 0.0) && (lastLon == 0.0) && Route.getCurrentPoint() == 0) {
             lastLat = currentLat;
             lastLon = currentLon;
         }
+
+        if ((lastLat == 0.0) && (lastLon == 0.0) && Route.getCurrentPoint() != 0) {
+            lastLat = Route.getLastLat();
+            lastLon = Route.getLastLon();
+        }
+
         double distanceBetweenTwoPoints = compareDistance(currentLat, lastLat, currentLon, lastLon, 0.0, 0.0);
-        Log.d("test", String.valueOf(distanceBetweenTwoPoints));
+        Log.d("test", "moved: " + String.valueOf(distanceBetweenTwoPoints));
         Route.addToDistanceTravelled(distanceBetweenTwoPoints);
-        Log.d("test", String.valueOf(Route.getTravelledDistance()));
+        Log.d("test", "total: " + String.valueOf(Route.getTravelledDistance()));
         lastLat = currentLat;
         lastLon = currentLon;
 
@@ -228,16 +235,10 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(UPDATE_INTERVAL)
-                .setFastestInterval(15000);
+                .setFastestInterval(10000);
         // Request location updates
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+
             return;
         }
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
@@ -404,7 +405,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
                                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(Math.abs(completedTime))));
                 routeDurTaken.setText("Time: " + completedTimeInString);
                 String roundedDistance = String.format("%.2f", Route.getTravelledDistance());
-                routeLen.setText("Distance travelled: " + roundedDistance + "meters");
+                routeLen.setText("Distance travelled: " + roundedDistance + " meters");
 
                 acceptButton.setOnClickListener(new View.OnClickListener() {
                     @Override

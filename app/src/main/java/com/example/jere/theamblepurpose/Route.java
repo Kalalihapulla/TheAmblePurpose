@@ -13,9 +13,12 @@ public class Route {
     private static Double currentLatitude;
     private static Double currentLongitude;
     private static int currentPoint;
+    private static int lastPointNumber;
     private static ArrayList<JSONObject> routePoints;
     private static Long currentTimer;
     private static double travelledDistance;
+    private static double lastLat;
+    private static double lastLon;
 
    public Route(JSONObject routeData) throws JSONException {
        this.routeData = routeData;
@@ -24,6 +27,7 @@ public class Route {
        this.currentPoint = 0;
        this.currentTimer = 0L;
        this.travelledDistance = 0.0;
+       lastPointNumber = routeData.getJSONArray("points").length();
 
        for (int i=0; i < routeData.getJSONArray("points").length(); i++)
        {
@@ -57,6 +61,10 @@ public class Route {
        currentPoint++;
     }
 
+    public static int getCurrentPoint() {
+        return currentPoint;
+    }
+
     public static boolean checkForLastPoint() {
 
        if (currentPoint == routePoints.size()-1) {
@@ -81,4 +89,23 @@ public class Route {
         return travelledDistance;
     }
 
+    public static double getLastLat() {
+        return lastLat;
+    }
+
+    public static void setLastLat(double lastLat) {
+        Route.lastLat = lastLat;
+    }
+
+    public static double getLastLon() {
+        return lastLon;
+    }
+
+    public static void setLastLon(double lastLon) {
+        Route.lastLon = lastLon;
+    }
+
+    public static int getLastPointNumber() {
+        return lastPointNumber;
+    }
 }
