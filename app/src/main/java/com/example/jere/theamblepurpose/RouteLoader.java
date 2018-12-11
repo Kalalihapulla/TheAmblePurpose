@@ -37,12 +37,17 @@ public class RouteLoader extends AppCompatActivity {
 
     private JSONArray routeArray;
     final Context context = this;
+    double usableTime;
+    double usableDistance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.routeloader_activity);
+
+        usableTime = getIntent().getDoubleExtra("timeSetting", 120.0);
+        usableDistance = getIntent().getDoubleExtra("distanceSetting", 10.0);
 
         loadRoutes();
 
@@ -103,7 +108,7 @@ public class RouteLoader extends AppCompatActivity {
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
-        String url = "http://206.189.106.84:2121/routes";
+        String url = "http://206.189.106.84:2121/routes?time=" + usableTime +  "?distance=" + usableDistance;
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                 Request.Method.GET,
