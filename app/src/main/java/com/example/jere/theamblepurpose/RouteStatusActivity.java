@@ -34,9 +34,16 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -78,6 +85,8 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
     private Chronometer routeTimer;
     private boolean isStart;
     private Context context = this;
+    private RatingBar routeRating;
+    private TextView travelledText;
 
     private double lastLat;
     private double lastLon;
@@ -95,8 +104,10 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         routeTimer = (Chronometer) findViewById(R.id.routeTimer);
         routeTimer.setBase(Route.getCurrentTimer());
 
-        TextView routeNumber = (TextView)findViewById(R.id.routeNumber);
-        routeNumber.setText("Point number: " + String.valueOf(Route.getCurrentPoint()+1) + "/" + String.valueOf(Route.getLastPointNumber()));
+        TextView routeNumber = (TextView) findViewById(R.id.routeNumber);
+        routeNumber.setText("Point number: " + String.valueOf(Route.getCurrentPoint() + 1) + "/" + String.valueOf(Route.getLastPointNumber()));
+        travelledText = (TextView) findViewById(R.id.travelledText);
+
 
         routeTimer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
             @Override
@@ -223,10 +234,10 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         double distanceBetweenTwoPoints = compareDistance(currentLat, lastLat, currentLon, lastLon, 0.0, 0.0);
         Log.d("test", "moved: " + String.valueOf(distanceBetweenTwoPoints));
         Route.addToDistanceTravelled(distanceBetweenTwoPoints);
+        travelledText.setText("Travelled: " + String.format("%.2f",(distanceBetweenTwoPoints)) + " m");
         Log.d("test", "total: " + String.valueOf(Route.getTravelledDistance()));
         lastLat = currentLat;
         lastLon = currentLon;
-
 
     }
 
@@ -391,7 +402,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
                 TextView routeMessage = (TextView) dialog.findViewById(R.id.routeMessage);
                 TextView routeDurTaken = (TextView) dialog.findViewById(R.id.routeDurTaken);
                 TextView routeLen = (TextView) dialog.findViewById(R.id.routeLength);
-                TextView routeRating = (TextView) dialog.findViewById(R.id.routeRating);
+                routeRating = (RatingBar) dialog.findViewById(R.id.ratingBar);
 
                 ImageButton acceptButton = (ImageButton) dialog.findViewById(R.id.acceptButton);
 
@@ -410,6 +421,9 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
                 acceptButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        double numberOfStars = routeRating.getRating();
+                        Log.d("test", "star: " + String.valueOf(numberOfStars));
+                        putRouteRating(numberOfStars, Route.getRouteID());
                         startActivity(new Intent(RouteStatusActivity.this, RouteLoader.class));
                     }
                 });
@@ -468,6 +482,31 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
             routeTimer.start();
             isStart = true;
         }
+    }
+
+    public void putRouteRating(final double rating, int routeID) {
+
+        RequestQueue queue = Volley.newRequestQueue(this);  // this = context
+
+        String url = "http://206.189.106.84:2121/rate?route_id=" + routeID + "&user_id=6&rating=" + rating;
+        StringRequest putRequest = new StringRequest(Request.Method.PUT, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // response
+                        Log.d("test", "Star rating of " + rating + " given.");
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                    }
+                }
+        ) {
+
+        };
+
+        queue.add(putRequest);
     }
 }
 
