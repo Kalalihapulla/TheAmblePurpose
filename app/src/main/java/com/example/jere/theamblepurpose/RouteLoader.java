@@ -1,14 +1,21 @@
 package com.example.jere.theamblepurpose;
 
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -29,6 +36,7 @@ import java.util.ArrayList;
 public class RouteLoader extends AppCompatActivity {
 
     private JSONArray routeArray;
+    final Context context = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,64 +46,15 @@ public class RouteLoader extends AppCompatActivity {
 
         loadRoutes();
 
-
-        final ListView listview = (ListView) findViewById(R.id.routeList);
-
-        String[] values = new String[] { "Android", "iPhone", "WindowsMobile",
-                "Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X",
-                "Linux", "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux",
-                "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux", "OS/2",
-                "Android", "iPhone", "WindowsMobile" };
-
-        final ArrayList<String> list = new ArrayList<String>();
-
-          for (int i = 0; i < values.length; ++i) {
-              list.add(values[i]);
-          }
-
-
-       // final ArrayList<String> routeNamesList = new ArrayList<String>();
-
-     //   for (int i = 0; i < routeArray.length(); ++i) {
-        //    Log.d("test",String.valueOf(i));
-       // }
-
-        final RouteArrayAdapter adapter = new RouteArrayAdapter(this,
-                android.R.layout.simple_list_item_1, list);
-        listview.setAdapter(adapter);
-
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, final View view,
-                                    int position, long id) {
-
-                                adapter.notifyDataSetChanged();
-
-            }
-
-        });
-
-
-
-      Button startSelectedRouteButton = (Button)findViewById(R.id.startTestRoute);
-
-      startSelectedRouteButton.setOnClickListener(new View.OnClickListener() {
-          @Override
-           public void onClick(View v) {
-                loadRouteInfo();
-         }
-       });
-
     }
 
-    public void loadRouteInfo() {
+    public void loadRouteInfo(int routeID) {
 
         Log.d("test", "STARTED ROUTING");
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
-        String url = "http://206.189.106.84:2121/route?id=7";
+        String url = "http://206.189.106.84:2121/route?id=" + routeID;
         //route?id=1
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -116,9 +75,7 @@ public class RouteLoader extends AppCompatActivity {
 
                             if (Route.getJSON() != null) {
                                 startActivity(new Intent(RouteLoader.this, RouteActivity.class));
-                            }
-
-                            else {
+                            } else {
                                 Toast.makeText(getApplicationContext(), "No route data found.", Toast.LENGTH_SHORT).show();
                             }
 
@@ -141,6 +98,7 @@ public class RouteLoader extends AppCompatActivity {
 
     public void loadRoutes() {
 
+
         Log.d("test", "STARTED ROUTING");
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -155,9 +113,80 @@ public class RouteLoader extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONArray response) {
 
-                        Log.d("test", "Routes get" );
-                            routeArray = response;
-                            Log.d("test", routeArray.toString());
+                        Log.d("test", "Routes get");
+                        routeArray = response;
+
+                        final ArrayList<JSONObject> routeArrayList = new ArrayList<>();
+
+                        RouteArrayAdapter routeListAdapter = new RouteArrayAdapter(getApplicationContext(), routeArrayList);
+
+                        ListView routeListView = (ListView) findViewById(R.id.routeList);
+                        routeListView.setAdapter(routeListAdapter);
+
+                        routeListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                                final int position = i;
+
+                                final Dialog dialog = new Dialog(context);
+                                dialog.setContentView(R.layout.routepopup);
+                                try {
+                                    dialog.setTitle(routeArrayList.get(i).getString("name"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                                // set the custom dialog components - text, image and button
+                                TextView routeDesc = (TextView) dialog.findViewById(R.id.routeDesc);
+                                TextView routeDur = (TextView) dialog.findViewById(R.id.routeDuration);
+                                TextView routeLen = (TextView) dialog.findViewById(R.id.routeLength);
+                                TextView routeRating = (TextView) dialog.findViewById(R.id.routeRating);
+
+                                try {
+                                    routeDesc.setText(routeArrayList.get(i).getString("description"));
+                                    routeDur.setText("Duration: " + routeArrayList.get(i).getString("duration_time"));
+                                    routeLen.setText("Length " + routeArrayList.get(i).getString("duration_distance"));
+                                    routeRating.setText("Rating: " + routeArrayList.get(i).getString("avg_rating"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                ImageButton acceptButton = (ImageButton) dialog.findViewById(R.id.acceptButton);
+                                ImageButton cancelButton = (ImageButton) dialog.findViewById(R.id.cancelButton);
+
+                                acceptButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        try {
+                                            loadRouteInfo(routeArrayList.get(position).getInt("id"));
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
+
+                                cancelButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                     dialog.cancel();
+                                    }
+                                });
+
+                                dialog.show();
+
+                            }
+                        });
+
+                        for (int i = 0; i < routeArray.length(); ++i) {
+                            try {
+                                routeArrayList.add(routeArray.getJSONObject(i));
+                                Log.d("test", routeArrayList.get(i).getString("name"));
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
 
                     }
                 },

@@ -13,28 +13,12 @@ public class StartScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.startscreen_activity);
 
-        Button startActivity = (Button)findViewById(R.id.startactivity_button);
-        Button mapTestButton = (Button)findViewById(R.id.maptest_button);
         Button selectRouteButton = (Button)findViewById(R.id.startRouteButton);
-
-        startActivity.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(StartScreenActivity.this, StreetViewActivity.class));
-            }
-        });
-
-        mapTestButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(StartScreenActivity.this, MapActivity.class));
-            }
-        });
 
         selectRouteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(StartScreenActivity.this, RouteLoader.class));
+                startActivity(new Intent(StartScreenActivity.this, RouteSettingsActivity.class));
             }
         });
     }

@@ -1,33 +1,44 @@
 package com.example.jere.theamblepurpose;
 
 import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
-import java.util.HashMap;
-import java.util.List;
+import com.android.volley.Response;
 
-public class RouteArrayAdapter extends ArrayAdapter<String> {
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-    HashMap<String, Integer> mIdMap = new HashMap<>();
+import java.util.ArrayList;
 
-    public RouteArrayAdapter(Context context, int textViewResourceId,
-                              List<String> objects) {
-        super(context, textViewResourceId, objects);
-        for (int i = 0; i < objects.size(); ++i) {
-            mIdMap.put(objects.get(i), i);
+public class RouteArrayAdapter extends ArrayAdapter<JSONObject> {
+    public RouteArrayAdapter(Context context, ArrayList<JSONObject> routeArrayList) {
+        super(context, 0, routeArrayList);
+    }
+
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        JSONObject route = getItem(position);
+
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.routelistcontent_activity, parent, false);
         }
-    }
 
-    @Override
-    public long getItemId(int position) {
-        String item = getItem(position);
-        return mIdMap.get(item);
-    }
+        TextView routeName = (TextView) convertView.findViewById(R.id.routeName);
 
-    @Override
-    public boolean hasStableIds() {
-        return true;
-    }
+        try {
+            routeName.setText(route.getString("name"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
+        routeName.setTag(position);
+
+        return convertView;
+    }
 }
-

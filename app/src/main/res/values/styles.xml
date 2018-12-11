@@ -1,8 +1,22 @@
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="android:windowBackground">@drawable/kuva</item>
+        <item name="colorPrimary">#FFAECA</item>
+        <item name="colorPrimaryDark">#6f6770</item>
+        <item name="colorAccent">#f2b5f0</item>
+        <item name="android:textColorSecondary">#FFAECA</item>
+        <item name="android:itemBackground">#f2b5f0</item>
+        <item name="android:textColor">#FFAECA</item>
+    </style>
+
+    <style name="TimePickerWidgetStyle" parent="@android:style/Widget.Material.TimePicker">
+        <item name="android:headerBackground">#fef4ff</item>
+        <item name="android:numbersTextColor">#FFAECA</item>
+        <item name="android:numbersInnerTextColor">#FFAECA</item>
+        <item name="android:numbersSelectorColor">#FFAECA</item>
+        <item name="android:numbersBackgroundColor">#fef4ff</item>
+        <item name="android:amPmTextColor">#fff</item>
     </style>
 
 </resources>
