@@ -14,12 +14,16 @@ public class Route {
     private static Double currentLongitude;
     private static int currentPoint;
     private static ArrayList<JSONObject> routePoints;
+    private static Long currentTimer;
+    private static double travelledDistance;
 
    public Route(JSONObject routeData) throws JSONException {
        this.routeData = routeData;
        ArrayList<JSONObject> routePoints = new ArrayList<>();
        routePoints.clear();
        this.currentPoint = 0;
+       this.currentTimer = 0L;
+       this.travelledDistance = 0.0;
 
        for (int i=0; i < routeData.getJSONArray("points").length(); i++)
        {
@@ -62,4 +66,19 @@ public class Route {
            return false;
        }
     }
+    public static Long getCurrentTimer() {
+        return currentTimer;
+    }
+
+    public static void setCurrentTimer(Long currentTimerFromActivity) {
+        currentTimer = currentTimerFromActivity;
+    }
+
+    public static void addToDistanceTravelled(double addedDistance) {
+        travelledDistance= travelledDistance + addedDistance;
+    }
+    public static double getTravelledDistance() {
+        return travelledDistance;
+    }
+
 }

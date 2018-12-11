@@ -2,6 +2,7 @@ package com.example.jere.theamblepurpose;
 
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -27,9 +29,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,6 +54,8 @@ import com.karumi.dexter.listener.single.PermissionListener;
 
 import org.json.JSONException;
 
+import java.util.concurrent.TimeUnit;
+
 
 public class RouteStatusActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
 
@@ -68,6 +74,15 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
     private boolean isPermission;
 
     private ImageButton readyButton;
+    private ProgressBar distanceIndicator;
+    private Chronometer routeTimer;
+    private boolean isStart;
+    private Context context = this;
+
+    private double lastLat;
+    private double lastLon;
+    private double currentLat;
+    private double currentLon;
 
 
     @Override
@@ -75,6 +90,19 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.routestatus_layout);
+
+        isStart = false;
+        routeTimer = (Chronometer) findViewById(R.id.routeTimer);
+        routeTimer.setBase(Route.getCurrentTimer());
+
+        routeTimer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
+            @Override
+            public void onChronometerTick(Chronometer chronometerChanged) {
+                routeTimer = chronometerChanged;
+            }
+        });
+
+        startStopChronometer(routeTimer);
 
         if (requestSinglePermission()) {
 
@@ -128,6 +156,8 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
                 alert1.show();
             }
         });
+
+        distanceIndicator = (ProgressBar) findViewById(R.id.distanceIndicator);
     }
 
     public void onConnected(@Nullable Bundle bundle) {
@@ -169,17 +199,28 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         Log.d("test", "Connection failed. Error: " + connectionResult.getErrorCode());
     }
 
+
     @Override
     public void onLocationChanged(Location location) {
         String msg = "Updated Location: " +
                 Double.toString(location.getLatitude()) + "," +
                 Double.toString(location.getLongitude());
-        // Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-        // You can now create a LatLng Object for use with maps
-        latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        //it was pre written
+        currentLat = location.getLatitude();
+        currentLon = location.getLongitude();
+        if ((lastLat == 0.0) && (lastLon == 0.0)) {
+            lastLat = currentLat;
+            lastLon = currentLon;
+        }
+        double distanceBetweenTwoPoints = compareDistance(currentLat, lastLat, currentLon, lastLon, 0.0, 0.0);
+        Log.d("test", String.valueOf(distanceBetweenTwoPoints));
+        Route.addToDistanceTravelled(distanceBetweenTwoPoints);
+        Log.d("test", String.valueOf(Route.getTravelledDistance()));
+        lastLat = currentLat;
+        lastLon = currentLon;
+
+
     }
 
     protected void startLocationUpdates() {
@@ -187,7 +228,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(UPDATE_INTERVAL)
-                .setFastestInterval(FASTEST_INTERVAL);
+                .setFastestInterval(15000);
         // Request location updates
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -337,18 +378,43 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
     public void validateDistance(double distance) {
 
         if (distance <= 20) {
-
+            startStopChronometer(routeTimer);
             AlertDialog.Builder builder2 = new AlertDialog.Builder(this);
+
             if (Route.checkForLastPoint()) {
-                builder2.setMessage("Congratulations! You have completed the route! Return to route list.");
-                builder2.setPositiveButton(
-                        "Routes",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                startActivity(new Intent(RouteStatusActivity.this, RouteLoader.class));
-                                dialog.cancel();
-                            }
-                        });
+
+                final Dialog dialog = new Dialog(context);
+                dialog.setContentView(R.layout.routecompletionpopup);
+                dialog.setCancelable(false);
+
+                TextView routeMessage = (TextView) dialog.findViewById(R.id.routeMessage);
+                TextView routeDurTaken = (TextView) dialog.findViewById(R.id.routeDurTaken);
+                TextView routeLen = (TextView) dialog.findViewById(R.id.routeLength);
+                TextView routeRating = (TextView) dialog.findViewById(R.id.routeRating);
+
+                ImageButton acceptButton = (ImageButton) dialog.findViewById(R.id.acceptButton);
+
+                routeMessage.setText("Congratulations! You have completed the route!");
+                Long completedTime = Route.getCurrentTimer();
+                String completedTimeInString = String.format("%02d:%02d:%02d",
+                        TimeUnit.MILLISECONDS.toHours(Math.abs(completedTime)),
+                        TimeUnit.MILLISECONDS.toMinutes(Math.abs(completedTime)) -
+                                TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(Math.abs(completedTime))),
+                        TimeUnit.MILLISECONDS.toSeconds(Math.abs(completedTime)) -
+                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(Math.abs(completedTime))));
+                routeDurTaken.setText("Time: " + completedTimeInString);
+                String roundedDistance = String.format("%.2f", Route.getTravelledDistance());
+                routeLen.setText("Distance travelled: " + roundedDistance + "meters");
+
+                acceptButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startActivity(new Intent(RouteStatusActivity.this, RouteLoader.class));
+                    }
+                });
+
+                dialog.show();
+
             } else {
                 builder2.setMessage("Congratulations, location reached! Are you ready for the next location?");
                 builder2.setCancelable(true);
@@ -362,18 +428,44 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
                                 dialog.cancel();
                             }
                         });
+                AlertDialog alert2 = builder2.create();
+                alert2.show();
             }
-
-            AlertDialog alert2 = builder2.create();
-            alert2.show();
 
 
         } else if (distance <= 80) {
-            Toast.makeText(getApplicationContext(), "You are really close to the destination!", Toast.LENGTH_SHORT).show();
+            distanceIndicator.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorGreen), android.graphics.PorterDuff.Mode.MULTIPLY);
+            Toast toast = Toast.makeText(getApplicationContext(), "You are really close to the destination!", Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 120);
+            toast.show();
+
         } else if (distance <= 160) {
-            Toast.makeText(getApplicationContext(), "You are getting closer to the destination!", Toast.LENGTH_SHORT).show();
+            distanceIndicator.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorYellow), android.graphics.PorterDuff.Mode.MULTIPLY);
+            Toast toast = Toast.makeText(getApplicationContext(), "You are getting closer to the destination!", Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 120);
+            toast.show();
         } else {
-            Toast.makeText(getApplicationContext(), "You are far away from the destination!", Toast.LENGTH_SHORT).show();
+            distanceIndicator.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorRed), android.graphics.PorterDuff.Mode.MULTIPLY);
+            Toast toast = Toast.makeText(getApplicationContext(), "You are far away from the destination!", Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 120);
+            toast.show();
+        }
+    }
+
+    public void startStopChronometer(View view) {
+        if (isStart) {
+            long elapsedMillis = routeTimer.getBase() - SystemClock.elapsedRealtime();
+            Route.setCurrentTimer(elapsedMillis);
+            Log.d("test", "stopped and set timer to:" + String.valueOf(elapsedMillis));
+            routeTimer.stop();
+            isStart = false;
+
+        } else {
+            routeTimer.setBase(SystemClock.elapsedRealtime() + Route.getCurrentTimer());
+            Log.d("test", "current time:" + String.valueOf(Route.getCurrentTimer()));
+            Log.d("test", String.valueOf(routeTimer.getBase()));
+            routeTimer.start();
+            isStart = true;
         }
     }
 }

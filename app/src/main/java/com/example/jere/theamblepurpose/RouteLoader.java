@@ -2,18 +2,14 @@ package com.example.jere.theamblepurpose;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,8 +42,8 @@ public class RouteLoader extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.routeloader_activity);
 
-        usableTime = getIntent().getDoubleExtra("timeSetting", 120.0);
-        usableDistance = getIntent().getDoubleExtra("distanceSetting", 10.0);
+        usableTime = getIntent().getDoubleExtra("timeSetting", 1440);
+        usableDistance = getIntent().getDoubleExtra("distanceSetting", 30);
 
         loadRoutes();
 
@@ -117,7 +113,7 @@ public class RouteLoader extends AppCompatActivity {
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
-        String url = "http://206.189.106.84:2121/routes?time=" + usableTime +  "?distance=" + usableDistance;
+        String url = "http://206.189.106.84:2121/routes?time=" + usableTime +  "&distance=" + usableDistance;
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                 Request.Method.GET,
@@ -152,8 +148,8 @@ public class RouteLoader extends AppCompatActivity {
                                 }
 
                                 // set the custom dialog components - text, image and button
-                                TextView routeDesc = (TextView) dialog.findViewById(R.id.routeDesc);
-                                TextView routeDur = (TextView) dialog.findViewById(R.id.routeDuration);
+                                TextView routeDesc = (TextView) dialog.findViewById(R.id.routeMessage);
+                                TextView routeDur = (TextView) dialog.findViewById(R.id.routeDurTaken);
                                 TextView routeLen = (TextView) dialog.findViewById(R.id.routeLength);
                                 TextView routeRating = (TextView) dialog.findViewById(R.id.routeRating);
 

@@ -28,7 +28,7 @@ public class RouteSettingsActivity extends AppCompatActivity {
 
         final TimePicker timepicker=(TimePicker)findViewById(R.id.timePicker);
 
-        usableDistance = 10.0;
+        usableDistance = 0;
 
         timepicker.setIs24HourView(true);
         ImageButton acceptSettings = (ImageButton) findViewById(R.id.okButton);
@@ -51,6 +51,7 @@ public class RouteSettingsActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(RouteSettingsActivity.this, RouteLoader.class);
                 intent.putExtra("timeSetting", usableTime);
+                Log.d("test", "usable distance: " + usableDistance);
                 intent.putExtra("distanceSetting", usableDistance);
                 startActivity(intent);
 
