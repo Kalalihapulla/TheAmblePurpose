@@ -148,10 +148,10 @@ public class RouteLoader extends AppCompatActivity {
                                 }
 
                                 // set the custom dialog components - text, image and button
-                                TextView routeDesc = (TextView) dialog.findViewById(R.id.routeMessage);
-                                TextView routeDur = (TextView) dialog.findViewById(R.id.routeDurTaken);
-                                TextView routeLen = (TextView) dialog.findViewById(R.id.routeLength);
-                                TextView routeRating = (TextView) dialog.findViewById(R.id.routeRating);
+                                TextView routeDesc = (TextView) dialog.findViewById(R.id.descText);
+                                TextView routeDur = (TextView) dialog.findViewById(R.id.durationText);
+                                TextView routeLen = (TextView) dialog.findViewById(R.id.distanceText);
+                                TextView routeRating = (TextView) dialog.findViewById(R.id.ratingText);
 
                                 try {
                                     routeDesc.setText(routeArrayList.get(i).getString("description"));

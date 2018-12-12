@@ -8,7 +8,7 @@
 
 
     <TextView
-        android:id="@+id/routeMessage"
+        android:id="@+id/descText"
         android:layout_width="320dp"
         android:layout_height="71dp"
         android:layout_marginBottom="8dp"
@@ -17,7 +17,7 @@
         android:layout_marginTop="8dp"
         android:text="Descscription"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/routeDurTaken"
+        app:layout_constraintBottom_toTopOf="@+id/durationText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.25"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,7 +26,7 @@
         app:layout_constraintVertical_chainStyle="spread_inside" />
 
     <TextView
-        android:id="@+id/routeDurTaken"
+        android:id="@+id/durationText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -36,10 +36,10 @@
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/routeMessage" />
+        app:layout_constraintTop_toBottomOf="@+id/descText" />
 
     <TextView
-        android:id="@+id/routeLength"
+        android:id="@+id/distanceText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -49,10 +49,10 @@
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/routeDurTaken" />
+        app:layout_constraintTop_toBottomOf="@+id/durationText" />
 
     <TextView
-        android:id="@+id/routeRating"
+        android:id="@+id/cancelButton"
         android:layout_width="81dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -60,7 +60,7 @@
         android:text="Rate the route!"
         android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/routeLength" />
+        app:layout_constraintTop_toBottomOf="@+id/distanceText" />
 
     <ImageButton
         android:id="@+id/acceptButton"
@@ -73,7 +73,7 @@
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/routeRating"
+        app:layout_constraintTop_toBottomOf="@+id/cancelButton"
         app:srcCompat="@drawable/okbuttonldpi" />
 
     <RatingBar
@@ -88,7 +88,18 @@
         android:stepSize="0.5"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.733"
-        app:layout_constraintStart_toEndOf="@+id/routeRating"
-        app:layout_constraintTop_toBottomOf="@+id/routeLength" />
+        app:layout_constraintStart_toEndOf="@+id/cancelButton"
+        app:layout_constraintTop_toBottomOf="@+id/distanceText" />
+
+    <TextView
+        android:id="@+id/scoreText"
+        android:layout_width="271dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="4dp"
+        android:text="score"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cancelButton" />
 
 </android.support.constraint.ConstraintLayout>

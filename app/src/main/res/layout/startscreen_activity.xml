@@ -11,13 +11,58 @@
         android:id="@+id/startRouteButton"
         android:layout_width="269dp"
         android:layout_height="122dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="44dp"
-        android:text="Start a route"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Have an experience!"
+        android:textSize="26sp"
+        app:layout_constraintBottom_toTopOf="@+id/createRouteButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.507"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/accountButton"
+        app:layout_constraintVertical_bias="0.015" />
+
+    <Button
+        android:id="@+id/createRouteButton"
+        android:layout_width="269dp"
+        android:layout_height="122dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:text="Create an experience!"
+        android:textSize="26sp"
+        app:layout_constraintBottom_toTopOf="@+id/instructionsButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/startRouteButton" />
+
+    <Button
+        android:id="@+id/instructionsButton"
+        android:layout_width="269dp"
+        android:layout_height="122dp"
+        android:layout_marginBottom="56dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:text="Instructions"
+        android:textSize="26sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/createRouteButton" />
+
+    <ImageButton
+        android:id="@+id/accountButton"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/transparent"
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/infobuttonldpi" />
 
 </android.support.constraint.ConstraintLayout>

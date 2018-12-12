@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class Route {
     private static JSONObject routeData;
@@ -18,6 +19,8 @@ public class Route {
     private static double lastLat;
     private static double lastLon;
     private static int routeID;
+    private static double requiredDistance;
+    private static Long requiredTime;
 
    public Route(JSONObject routeData) throws JSONException {
        this.routeData = routeData;
@@ -28,6 +31,10 @@ public class Route {
        this.travelledDistance = 0.0;
        lastPointNumber = routeData.getJSONArray("points").length();
        routeID = routeData.getInt("id");
+       double distanceInKilometers = routeData.getDouble("duration_distance");
+       requiredDistance = distanceInKilometers * 1000;
+       Long requiredTimeInMins = routeData.getLong("duration_time");
+       requiredTime = TimeUnit.MINUTES.toMillis(requiredTimeInMins);
 
        for (int i=0; i < routeData.getJSONArray("points").length(); i++)
        {
@@ -110,5 +117,12 @@ public class Route {
     }
     public static int getRouteID() {
         return routeID;
+    }
+
+    public static Long getRequiredTime() {
+        return requiredTime;
+    }
+    public static double getRequiredDistance() {
+        return requiredDistance;
     }
 }

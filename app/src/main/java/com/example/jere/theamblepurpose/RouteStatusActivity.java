@@ -7,33 +7,22 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.view.menu.MenuBuilder;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -50,8 +39,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -63,6 +50,8 @@ import com.karumi.dexter.listener.single.PermissionListener;
 import org.json.JSONException;
 
 import java.util.concurrent.TimeUnit;
+
+import static java.lang.Math.toIntExact;
 
 
 public class RouteStatusActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
@@ -89,6 +78,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
     private RatingBar routeRating;
     private TextView travelledText;
     private ImageButton menuButton;
+    private TextView scoreText;
 
     private double lastLat;
     private double lastLon;
@@ -264,7 +254,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         double distanceBetweenTwoPoints = compareDistance(currentLat, lastLat, currentLon, lastLon, 0.0, 0.0);
         Log.d("test", "moved: " + String.valueOf(distanceBetweenTwoPoints));
         Route.addToDistanceTravelled(distanceBetweenTwoPoints);
-        travelledText.setText("Travelled: " + String.format("%.2f",(distanceBetweenTwoPoints)) + " m");
+        travelledText.setText("Travelled: " + String.format("%.2f", (Route.getTravelledDistance())) + " Meters");
         Log.d("test", "total: " + String.valueOf(Route.getTravelledDistance()));
         lastLat = currentLat;
         lastLon = currentLon;
@@ -429,9 +419,10 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
                 dialog.setContentView(R.layout.routecompletionpopup);
                 dialog.setCancelable(false);
 
-                TextView routeMessage = (TextView) dialog.findViewById(R.id.routeMessage);
-                TextView routeDurTaken = (TextView) dialog.findViewById(R.id.routeDurTaken);
-                TextView routeLen = (TextView) dialog.findViewById(R.id.routeLength);
+                TextView routeMessage = (TextView) dialog.findViewById(R.id.descText);
+                TextView routeDurTaken = (TextView) dialog.findViewById(R.id.durationText);
+                TextView routeLen = (TextView) dialog.findViewById(R.id.distanceText);
+                scoreText = (TextView) dialog.findViewById(R.id.scoreText);
                 routeRating = (RatingBar) dialog.findViewById(R.id.ratingBar);
 
                 ImageButton acceptButton = (ImageButton) dialog.findViewById(R.id.acceptButton);
@@ -448,12 +439,19 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
                 String roundedDistance = String.format("%.2f", Route.getTravelledDistance());
                 routeLen.setText("Distance travelled: " + roundedDistance + " meters");
 
+                final int totalRoutePoints = calculatePoints(completedTime, Route.getTravelledDistance(), Route.getRequiredTime(), Route.getRequiredDistance());
+
+                scoreText.setText("Your score: " + String.valueOf(totalRoutePoints));
+
                 acceptButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         double numberOfStars = routeRating.getRating();
                         Log.d("test", "star: " + String.valueOf(numberOfStars));
                         putRouteRating(numberOfStars, Route.getRouteID());
+                        TestUser.addDistance(Route.getTravelledDistance());
+                        TestUser.addPoints(totalRoutePoints);
+                        TestUser.addCompletedRoute();
                         startActivity(new Intent(RouteStatusActivity.this, RouteLoader.class));
                     }
                 });
@@ -481,18 +479,18 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         } else if (distance <= 80) {
             distanceIndicator.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorGreen), android.graphics.PorterDuff.Mode.MULTIPLY);
             Toast toast = Toast.makeText(getApplicationContext(), "You are really close to the destination!", Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 120);
+            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 175);
             toast.show();
 
         } else if (distance <= 160) {
             distanceIndicator.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorYellow), android.graphics.PorterDuff.Mode.MULTIPLY);
             Toast toast = Toast.makeText(getApplicationContext(), "You are getting closer to the destination!", Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 120);
+            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 175);
             toast.show();
         } else {
             distanceIndicator.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorRed), android.graphics.PorterDuff.Mode.MULTIPLY);
             Toast toast = Toast.makeText(getApplicationContext(), "You are far away from the destination!", Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 120);
+            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 175);
             toast.show();
         }
     }
@@ -537,6 +535,18 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         };
 
         queue.add(putRequest);
+    }
+
+    public int calculatePoints(Long usedTime, double usedDistance, Long requiredTime, double requiredDistance) {
+
+        Long timeInCorrectForm = Math.abs(usedTime);
+        Long timePoints = requiredTime / timeInCorrectForm;
+        double distancePoints = requiredDistance / usedDistance;
+        int timePointsInInt = toIntExact(timePoints);
+        int distancePointsInInt = (int) distancePoints;
+        int totalPoints = (timePointsInInt + distancePointsInInt) * 100;
+        Log.d("test", "totalpoints " + String.valueOf(totalPoints));
+        return totalPoints;
     }
 }
 

@@ -8,25 +8,25 @@
 
 
     <TextView
-        android:id="@+id/routeMessage"
+        android:id="@+id/descText"
         android:layout_width="320dp"
         android:layout_height="71dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
-        android:text="Descscription"
+        android:text="Description"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/routeDurTaken"
+        app:layout_constraintBottom_toTopOf="@+id/durationText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.25"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0"
-        app:layout_constraintVertical_chainStyle="spread_inside" />
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <TextView
-        android:id="@+id/routeDurTaken"
+        android:id="@+id/durationText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -36,10 +36,10 @@
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/routeMessage" />
+        app:layout_constraintTop_toBottomOf="@+id/descText" />
 
     <TextView
-        android:id="@+id/routeLength"
+        android:id="@+id/distanceText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -49,10 +49,10 @@
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/routeDurTaken" />
+        app:layout_constraintTop_toBottomOf="@+id/durationText" />
 
     <TextView
-        android:id="@+id/routeRating"
+        android:id="@+id/ratingText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -62,37 +62,30 @@
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/routeLength" />
+        app:layout_constraintTop_toBottomOf="@+id/distanceText" />
 
     <ImageButton
         android:id="@+id/acceptButton"
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginTop="8dp"
         android:background="@android:color/transparent"
         android:scaleType="fitCenter"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.918"
-        app:layout_constraintStart_toEndOf="@+id/cancelButton"
-        app:layout_constraintTop_toBottomOf="@+id/routeRating"
+        app:layout_constraintTop_toBottomOf="@+id/ratingText"
         app:srcCompat="@drawable/okbuttonldpi" />
 
     <ImageButton
         android:id="@+id/cancelButton"
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:layout_marginBottom="8dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:background="@android:color/transparent"
         android:scaleType="fitCenter"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/routeRating"
+        app:layout_constraintTop_toBottomOf="@+id/ratingText"
         app:srcCompat="@drawable/backbutton1ldpi" />
 
 </android.support.constraint.ConstraintLayout>
