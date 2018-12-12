@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+//Handles the main menu and test user profile functionality.
 public class StartScreenActivity extends AppCompatActivity {
 
     final Context context = this;

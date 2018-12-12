@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+//Route class for storing storing and handling static route data from the database.
 public class Route {
     private static JSONObject routeData;
     private static int currentPoint;

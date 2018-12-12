@@ -53,7 +53,7 @@ import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.toIntExact;
 
-
+//Activity used to track and display the status of the route.
 public class RouteStatusActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
 
     private TextView mLatitudeTextView;
@@ -95,6 +95,10 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         isStart = false;
         routeTimer = (Chronometer) findViewById(R.id.routeTimer);
         routeTimer.setBase(Route.getCurrentTimer());
+
+        distanceIndicator = (ProgressBar) findViewById(R.id.distanceIndicator);
+
+        distanceIndicator.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorPrimaryPink), android.graphics.PorterDuff.Mode.MULTIPLY);
 
         TextView routeNumber = (TextView) findViewById(R.id.routeNumber);
         routeNumber.setText("Point number: " + String.valueOf(Route.getCurrentPoint() + 1) + "/" + String.valueOf(Route.getLastPointNumber()));
@@ -193,9 +197,9 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
             }
         });
 
-        distanceIndicator = (ProgressBar) findViewById(R.id.distanceIndicator);
     }
 
+    //Starts the location updates when connected to the service.
     public void onConnected(@Nullable Bundle bundle) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -210,8 +214,6 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         }
         if (mLocation != null) {
 
-//            mLatitudeTextView.setText(String.valueOf(mLocation.getLatitude()));
-            //     mLongitudeTextView.setText(String.valueOf(mLocation.getLongitude()));
         } else {
             Toast.makeText(this, "Location not Detected", Toast.LENGTH_SHORT).show();
         }
@@ -229,12 +231,12 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
     }
 
 
+    //Updates and stores the needed content based on location updates/changes.
     @Override
     public void onLocationChanged(Location location) {
         String msg = "Updated Location: " +
                 Double.toString(location.getLatitude()) + "," +
                 Double.toString(location.getLongitude());
-        //Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
 
         currentLat = location.getLatitude();
         currentLon = location.getLongitude();
@@ -261,6 +263,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
 
     }
 
+    //Starts updating the location data.
     protected void startLocationUpdates() {
         // Create the location request
         mLocationRequest = LocationRequest.create()
@@ -298,6 +301,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         return isLocationEnabled();
     }
 
+    //Pop up dialog for needed permissions.
     private void showAlert() {
         final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle("Enable Location")
@@ -320,12 +324,14 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         dialog.show();
     }
 
+    //Checks if the location service is enabled.
     private boolean isLocationEnabled() {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 
+    //Requests for the location usage permission.
     private boolean requestSinglePermission() {
 
         Dexter.withActivity(this)
@@ -334,7 +340,6 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
                     @Override
                     public void onPermissionGranted(PermissionGrantedResponse response) {
                         //Single Permission is granted
-                        // Toast.makeText(RouteStatusActivity.this, "Single permission is granted!", Toast.LENGTH_SHORT).show();
                         isPermission = true;
                     }
 
@@ -356,6 +361,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
 
     }
 
+    //Gets the current location of the user based on gps data.
     public LatLng getCurrentLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Location currentLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -368,6 +374,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         }
     }
 
+    //Initiates the distance comparison between two points.
     public double compareLocation() throws JSONException {
         LatLng currentLatLng = getCurrentLocation();
         double currentLat = currentLatLng.latitude;
@@ -382,11 +389,13 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
 
     }
 
+    //Disables the use of built in physical or virtual back button.
     @Override
     public void onBackPressed() {
-        // Disble back button;
+        //Disable back button by overriding the default method.
     }
 
+    //Function to calculate the distance in meters between two gps points
     public double compareDistance(double lat1, double lat2, double lon1,
                                   double lon2, double el1, double el2) {
 
@@ -407,6 +416,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         return Math.sqrt(distance);
     }
 
+    //Checks and tracks the users distance from the correct location.
     public void validateDistance(double distance) {
 
         if (distance <= 20) {
@@ -479,22 +489,23 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         } else if (distance <= 80) {
             distanceIndicator.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorGreen), android.graphics.PorterDuff.Mode.MULTIPLY);
             Toast toast = Toast.makeText(getApplicationContext(), "You are really close to the destination!", Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 175);
+            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 200);
             toast.show();
 
         } else if (distance <= 160) {
             distanceIndicator.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorYellow), android.graphics.PorterDuff.Mode.MULTIPLY);
             Toast toast = Toast.makeText(getApplicationContext(), "You are getting closer to the destination!", Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 175);
+            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 200);
             toast.show();
         } else {
             distanceIndicator.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorRed), android.graphics.PorterDuff.Mode.MULTIPLY);
             Toast toast = Toast.makeText(getApplicationContext(), "You are far away from the destination!", Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 175);
+            toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 200);
             toast.show();
         }
     }
 
+    //Handles the route timing functionality with a chronometer.
     public void startStopChronometer(View view) {
         if (isStart) {
             long elapsedMillis = routeTimer.getBase() - SystemClock.elapsedRealtime();
@@ -512,6 +523,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         }
     }
 
+    //Uses http PUT to upload the route rating given by user to the specific route database.
     public void putRouteRating(final double rating, int routeID) {
 
         RequestQueue queue = Volley.newRequestQueue(this);  // this = context
@@ -537,6 +549,7 @@ public class RouteStatusActivity extends AppCompatActivity implements GoogleApiC
         queue.add(putRequest);
     }
 
+    //Calculates and tracks the distance between the users current and previous location.
     public int calculatePoints(Long usedTime, double usedDistance, Long requiredTime, double requiredDistance) {
 
         Long timeInCorrectForm = Math.abs(usedTime);

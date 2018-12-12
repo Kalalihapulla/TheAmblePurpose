@@ -28,7 +28,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-
+//Gets and uses the route data from the database to load the routes for further usage.
 public class RouteLoader extends AppCompatActivity {
 
     private JSONArray routeArray;
@@ -57,7 +57,7 @@ public class RouteLoader extends AppCompatActivity {
 
     }
 
-
+    //Gets the data from database for a specific route.
     public void loadRouteInfo(int routeID) {
 
         Log.d("test", "STARTED ROUTING");
@@ -65,7 +65,6 @@ public class RouteLoader extends AppCompatActivity {
         RequestQueue queue = Volley.newRequestQueue(this);
 
         String url = "http://206.189.106.84:2121/route?id=" + routeID;
-        //route?id=1
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -76,9 +75,6 @@ public class RouteLoader extends AppCompatActivity {
                         try {
 
                             Log.d("test", "GOT RESPONSE");
-
-                            String longitude = response.getJSONArray("points").getJSONObject(0).get("longitude").toString();
-                            String latitude = response.getJSONArray("points").getJSONObject(0).get("longitude").toString();
 
                             Route routeWithResponseData = new Route(response);
                             startActivity(new Intent(RouteLoader.this, RouteActivity.class));
@@ -102,10 +98,10 @@ public class RouteLoader extends AppCompatActivity {
                     }
                 });
 
-// Add the request to the RequestQueue.
         queue.add(jsonObjectRequest);
     }
 
+    //Gets the data from database for all the routes.
     public void loadRoutes() {
 
 
@@ -113,7 +109,7 @@ public class RouteLoader extends AppCompatActivity {
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
-        String url = "http://206.189.106.84:2121/routes?time=" + usableTime +  "&distance=" + usableDistance;
+        String url = "http://206.189.106.84:2121/routes?sort=rating&time=" + usableTime +  "&distance=" + usableDistance;
 
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
                 Request.Method.GET,
@@ -147,7 +143,6 @@ public class RouteLoader extends AppCompatActivity {
                                     e.printStackTrace();
                                 }
 
-                                // set the custom dialog components - text, image and button
                                 TextView routeDesc = (TextView) dialog.findViewById(R.id.descText);
                                 TextView routeDur = (TextView) dialog.findViewById(R.id.durationText);
                                 TextView routeLen = (TextView) dialog.findViewById(R.id.distanceText);
@@ -203,7 +198,7 @@ public class RouteLoader extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // Do something when error occurred
+                        Log.d("test","JSON error");
 
                     }
                 }

@@ -1,28 +1,13 @@
 package com.example.jere.theamblepurpose;
 
 
-import android.content.Context;
+
 import android.content.Intent;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.CountDownTimer;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.OnStreetViewPanoramaReadyCallback;
 import com.google.android.gms.maps.StreetViewPanorama;
 import com.google.android.gms.maps.SupportStreetViewPanoramaFragment;
@@ -31,9 +16,9 @@ import com.google.android.gms.maps.model.StreetViewPanoramaCamera;
 import com.google.android.gms.maps.model.StreetViewPanoramaLocation;
 import com.google.android.gms.maps.model.StreetViewPanoramaOrientation;
 import com.google.android.gms.maps.model.StreetViewSource;
-
 import org.json.JSONException;
 
+//Activity used to display the Google street view image used for navigating in the game.
 public class RouteActivity extends AppCompatActivity
         implements OnStreetViewPanoramaReadyCallback {
 
@@ -53,6 +38,7 @@ public class RouteActivity extends AppCompatActivity
 
     }
 
+    //Instantiates the streetview image and handles it's functionality when ready.
     @Override
     public void onStreetViewPanoramaReady(final StreetViewPanorama streetViewPanorama) {
         mStreetViewPanorama = streetViewPanorama;
@@ -96,11 +82,13 @@ public class RouteActivity extends AppCompatActivity
                 }
             };
 
+    //Disables the use of built in physical or virtual back button.
     @Override
     public void onBackPressed() {
-        // Disble back button;
+        //Disable back button by overriding the default method.
     }
 
+    //Handles the functionality of the activity based on the given timer.
     public void initiateRoutePoint() {
 
         final CountDownTimer countDownTimer = new CountDownTimer(16 * 1000, 1000) {

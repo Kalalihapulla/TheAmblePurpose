@@ -1,5 +1,6 @@
 package com.example.jere.theamblepurpose;
 
+//Class used to store static user data for test and demonstration purposes.
 public class TestUser {
     private static int totalPoints;
     private static double distanceTravelled;

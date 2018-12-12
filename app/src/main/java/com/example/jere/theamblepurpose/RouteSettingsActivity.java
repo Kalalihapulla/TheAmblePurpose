@@ -1,23 +1,19 @@
 package com.example.jere.theamblepurpose;
 
-import android.app.TimePickerDialog;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 
+//Used to display and handle the settings for the routes and their sorting.
 public class RouteSettingsActivity extends AppCompatActivity {
     private double usableDistance;
 
@@ -26,7 +22,7 @@ public class RouteSettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.routesettings_activity);
 
-        final TimePicker timepicker=(TimePicker)findViewById(R.id.timePicker);
+        final TimePicker timepicker = (TimePicker) findViewById(R.id.timePicker);
 
         usableDistance = 0;
 
@@ -34,7 +30,7 @@ public class RouteSettingsActivity extends AppCompatActivity {
         ImageButton acceptSettings = (ImageButton) findViewById(R.id.okButton);
         ImageButton backButton = (ImageButton) findViewById(R.id.backButton);
 
-        acceptSettings.setOnClickListener(new View.OnClickListener(){
+        acceptSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 double hours = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
@@ -46,9 +42,6 @@ public class RouteSettingsActivity extends AppCompatActivity {
                     usableTime = 1440 + usableTime;
                 }
 
-//                Log.d("test",String.valueOf(usableTime));
- //               Log.d("test",String.valueOf(usableDistance));
-
                 Intent intent = new Intent(RouteSettingsActivity.this, RouteLoader.class);
                 intent.putExtra("timeSetting", usableTime);
                 Log.d("test", "usable distance: " + usableDistance);
@@ -58,24 +51,24 @@ public class RouteSettingsActivity extends AppCompatActivity {
             }
         });
 
-        backButton.setOnClickListener(new View.OnClickListener(){
+        backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(RouteSettingsActivity.this, StartScreenActivity.class));
             }
         });
 
-        SeekBar distanceBar = (SeekBar)findViewById(R.id.distanceBar);
+        SeekBar distanceBar = (SeekBar) findViewById(R.id.distanceBar);
 
         distanceBar.setMax(300);
         distanceBar.setProgress(1);
 
-        final TextView distanceText = (TextView)findViewById(R.id.distanceText);
+        final TextView distanceText = (TextView) findViewById(R.id.distanceText);
 
 
         distanceBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
-
+            //Handles the progress bar functionality.
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 usableDistance = ((double) progress / 10.0);
                 String progressString = String.valueOf(usableDistance);

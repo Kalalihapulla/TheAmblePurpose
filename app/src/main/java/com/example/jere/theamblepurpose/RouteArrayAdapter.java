@@ -15,12 +15,14 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+//Custom adapter based on ArraayAdapter. Handles the population of the route list view with the needed routes.
 public class RouteArrayAdapter extends ArrayAdapter<JSONObject> {
     public RouteArrayAdapter(Context context, ArrayList<JSONObject> routeArrayList) {
         super(context, 0, routeArrayList);
     }
 
 
+    //Updates the list view with the need route content items.
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         JSONObject route = getItem(position);
